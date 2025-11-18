@@ -72,12 +72,8 @@ public class Player extends Entity implements Battleable {
         return inventory.getBuildables();
     }
 
-    /** Called when the player chooses to craft something. */
     public boolean build(String entity, EntityFactory factory) {
-        InventoryItem item = inventory.checkBuildCriteria(this, true, entity.equals("shield"), factory);
-        if (item == null)
-            return false;
-        return inventory.add(item);
+        return inventory.build(entity, factory);
     }
 
     public void move(GameMap map, Direction direction) {

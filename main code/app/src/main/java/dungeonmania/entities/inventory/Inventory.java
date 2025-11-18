@@ -6,20 +6,17 @@ import java.util.stream.Collectors;
 
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.EntityFactory;
-import dungeonmania.entities.Player;
 import dungeonmania.entities.buildables.Bow;
-import dungeonmania.entities.collectables.Arrow;
-import dungeonmania.entities.collectables.Key;
 import dungeonmania.entities.collectables.Sword;
-import dungeonmania.entities.collectables.Treasure;
 import dungeonmania.entities.collectables.Useable;
-import dungeonmania.entities.collectables.Wood;
+import dungeonmania.entities.crafting.CraftingManager;
 
 /**
  * Represents the contents of the player's inventory, containing all their collected and crafted items.
  */
 public class Inventory {
     private List<InventoryItem> items = new ArrayList<>();
+    private static CraftingManager craftingManager = new CraftingManager();
 
     /** Add the given item to the inventory */
     public boolean add(InventoryItem item) {
@@ -34,61 +31,21 @@ public class Inventory {
 
     /** Get the list of possible buildables */
     public List<String> getBuildables() {
-
-        int wood = count(Wood.class);
-        int arrows = count(Arrow.class);
-        int treasure = count(Treasure.class);
-        int keys = count(Key.class);
-        List<String> result = new ArrayList<>();
-
-        if (wood >= 1 && arrows >= 3) {
-            result.add("bow");
-        }
-        if (wood >= 2 && (treasure >= 1 || keys >= 1)) {
-            result.add("shield");
-        }
-        return result;
+        return craftingManager.getBuildables(this);
     }
 
     /**
-     * Check whether a player has the supplies to build a particular buildable. If so, build the item.
-     *
-     * Currently since there are only two buildables we have a boolean to keep track of which buildable it is.
-     *
-     * @param p player object
-     * @param remove whether to remove the build materials from the inventory while crafting the item.
-     * @param forceShield if `true` always craft a shield, otherwise craft a bow if possible, otherwise a shield.
-     * @param factory entity factory
+     * Build an item using the crafting system
+     * @param buildable Name of the item to build
+     * @param factory Entity factory for creating the item
+     * @return true if the item was successfully crafted and added to inventory
      */
-    public InventoryItem checkBuildCriteria(Player p, boolean remove, boolean forceShield, EntityFactory factory) {
-
-        List<Wood> wood = getEntities(Wood.class);
-        List<Arrow> arrows = getEntities(Arrow.class);
-        List<Treasure> treasure = getEntities(Treasure.class);
-        List<Key> keys = getEntities(Key.class);
-
-        if (wood.size() >= 1 && arrows.size() >= 3 && !forceShield) {
-            if (remove) {
-                items.remove(wood.get(0));
-                items.remove(arrows.get(0));
-                items.remove(arrows.get(1));
-                items.remove(arrows.get(2));
-            }
-            return factory.buildBow();
-
-        } else if (wood.size() >= 2 && (treasure.size() >= 1 || keys.size() >= 1)) {
-            if (remove) {
-                items.remove(wood.get(0));
-                items.remove(wood.get(1));
-                if (treasure.size() >= 1) {
-                    items.remove(treasure.get(0));
-                } else {
-                    items.remove(keys.get(0));
-                }
-            }
-            return factory.buildShield();
+    public boolean build(String buildable, EntityFactory factory) {
+        InventoryItem item = craftingManager.craft(buildable, this, factory);
+        if (item == null) {
+            return false;
         }
-        return null;
+        return add(item);
     }
 
     /**

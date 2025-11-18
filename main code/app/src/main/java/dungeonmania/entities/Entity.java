@@ -56,22 +56,6 @@ public abstract class Entity {
         return false;
     }
 
-    /** use setPosition */
-    @Deprecated(forRemoval = true)
-    public void translate(Direction direction) {
-        previousPosition = this.position;
-        this.position = Position.translateBy(this.position, direction);
-        if (!previousPosition.equals(this.position)) {
-            previousDistinctPosition = previousPosition;
-        }
-    }
-
-    /** use setPosition */
-    @Deprecated(forRemoval = true)
-    public void translate(Position offset) {
-        this.position = Position.translateBy(this.position, offset);
-    }
-
     /**
      * Called whenever another entity overlaps with this entity's position. Useful for triggering battles and item
      * collection.
