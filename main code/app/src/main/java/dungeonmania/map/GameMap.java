@@ -17,6 +17,7 @@ import dungeonmania.entities.Switch;
 import dungeonmania.entities.collectables.Bomb;
 import dungeonmania.entities.enemies.Enemy;
 import dungeonmania.entities.enemies.ZombieToastSpawner;
+import dungeonmania.entities.logical.LogicPropagator;
 import dungeonmania.util.Direction;
 import dungeonmania.util.Position;
 
@@ -50,6 +51,7 @@ public class GameMap {
         initRegisterSpawners();
         initRegisterBombsAndSwitches();
         initPotionListeners();
+        initLogicalEntities();
     }
 
     /** Subscribe bombs and switches to each other */
@@ -104,6 +106,11 @@ public class GameMap {
     private void initPotionListeners() {
         getEntities().stream().filter(PotionListener.class::isInstance).map(PotionListener.class::cast)
                 .forEach(this::registerPotionListener);
+    }
+
+    /** Register logic updates to happen every tick */
+    private void initLogicalEntities() {
+        game.register(() -> LogicPropagator.updateAllLogicalStates(this), Game.AI_MOVEMENT, "logicUpdates");
     }
 
     /** Register a potion listener on the player */

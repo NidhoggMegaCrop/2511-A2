@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dungeonmania.entities.collectables.Bomb;
+import dungeonmania.entities.logical.Conductor;
+import dungeonmania.entities.logical.LogicPropagator;
 import dungeonmania.map.GameMap;
 import dungeonmania.util.Position;
 
-public class Switch extends Entity {
+public class Switch extends Entity implements Conductor {
     /** Whether this switch is activated (ie a boulder has been pushed on top of it) */
     private boolean activated;
     private List<Bomb> bombs = new ArrayList<>();
@@ -36,8 +38,7 @@ public class Switch extends Entity {
     @Override
     public void onOverlap(GameMap map, Entity entity) {
         if (entity instanceof Boulder) {
-            activated = true;
-            activateBombs(map);
+            activate(map, map.getGame().getTick());
         }
     }
 
@@ -56,7 +57,7 @@ public class Switch extends Entity {
     @Override
     public void onMovedAway(GameMap map, Entity entity) {
         if (entity instanceof Boulder) {
-            activated = false;
+            deactivate(map);
         }
     }
 
@@ -67,5 +68,22 @@ public class Switch extends Entity {
     @Override
     public void onDestroy(GameMap gameMap) {
         return;
+    }
+
+    @Override
+    public void activate(GameMap map, int tick) {
+        if (!activated) {
+            activated = true;
+            activateBombs(map);
+            LogicPropagator.propagateActivation(map, this, tick);
+        }
+    }
+
+    @Override
+    public void deactivate(GameMap map) {
+        if (activated) {
+            activated = false;
+            LogicPropagator.propagateDeactivation(map, this);
+        }
     }
 }

@@ -6,6 +6,8 @@ import java.util.Iterator;
 import dungeonmania.entities.Door;
 import dungeonmania.entities.Entity;
 import dungeonmania.entities.Portal;
+import dungeonmania.entities.logical.LightBulb;
+import dungeonmania.entities.logical.SwitchDoor;
 
 /*
  * Converts the name of a class to snake case. This snake case string is the
@@ -26,6 +28,14 @@ public class NameConverter {
         if (entity instanceof Door door) {
             String open = door.isOpen() ? "_open" : "";
             return nameBasic + open;
+        }
+        if (entity instanceof LightBulb lightBulb) {
+            String on = lightBulb.isLogicallyActivated() ? "_on" : "_off";
+            return "light_bulb" + on;
+        }
+        if (entity instanceof SwitchDoor switchDoor) {
+            String open = switchDoor.isOpen() ? "_open" : "";
+            return "switch_door" + open;
         }
         return nameBasic;
     }
